@@ -26,7 +26,7 @@ jobs:
       # ------------------------------------------------------------
       - name: Run Veracode Static Analysis (SAST)
         id: sast
-        uses: veracode/veracode-uploadandscan-action@main
+        uses: veracode/veracode-uploadandscan-action@v1.0.4
         with:
           vid: ${{ secrets.VID }}
           vkey: ${{ secrets.VKEY }}
