@@ -1,7 +1,7 @@
 name: "Manual Veracode Static Analysis Scan"
 
 on:
-  workflow_dispatch:      # 👈 Manual trigger only
+  workflow_dispatch:      #Manual trigger only
 
 permissions:
   contents: read
@@ -26,7 +26,7 @@ jobs:
       # ------------------------------------------------------------
       - name: Run Veracode Static Analysis (SAST)
         id: sast
-        uses: veracode/veracode-uploadandscan-action@v1.1.6
+        uses: veracode/veracode-uploadandscan-action@main
         with:
           vid: ${{ secrets.VID }}
           vkey: ${{ secrets.VKEY }}
