@@ -1,0 +1,70 @@
+name: "Manual Veracode Static Analysis Scan"
+
+on:
+  workflow_dispatch:      # 👈 Manual trigger only
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+jobs:
+  veracode-static-analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -------------------------
+      # 1. Checkout code
+      # -------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ------------------------------------------------------------
+      # 2. Run Veracode STATIC (SAST) scan - vulnerability scanning
+      # ------------------------------------------------------------
+      - name: Run Veracode Static Analysis (SAST)
+        id: sast
+        uses: veracode/veracode-uploadandscan-action@v1.1.6
+        with:
+          vid: ${{ secrets.VID }}
+          vkey: ${{ secrets.VKEY }}
+
+          # The application name in Veracode (auto uses repo name)
+          appname: "${{ github.repository }}"
+
+          scantitle: "Manual SAST Scan - Run ${{ github.run_id }}"
+
+          # Upload entire repository
+          filepath: "."
+
+          # Create application profile if it doesn’t exist
+          createprofile: true
+
+          # Upload to a sandbox (recommended for testing)
+          sandboxname: "Manual-SAST"
+
+          # Scan version label
+          version: "v${{ github.run_id }}"
+
+          # Fail workflow if Veracode policy is violated
+          failbuild: true
+
+      # -------------------------------------------
+      # 3. Upload results as artifacts (optional)
+      # -------------------------------------------
+      - name: Upload SAST Scan Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: veracode-sast-results
+          path: ./
+          if-no-files-found: ignore
+
+      # -------------------------------------------
+      # 4. Success message
+      # -------------------------------------------
+      - name: "✅ No Vulnerabilities Detected"
+        if: success()
+        run: echo "SAST scan completed successfully — No blocking vulnerabilities!"
